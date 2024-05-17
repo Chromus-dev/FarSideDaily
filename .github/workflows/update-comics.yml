@@ -1,0 +1,45 @@
+name: Update comics
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+    schedule:
+        - cron: '24 5 * * 6'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        name: Updates daily comics
+        steps:
+            # To use this repository's private action,
+            # you must check out the repository
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Scrape comics
+              uses: ./scraper/
+              id: scrape
+
+            - name: Write Comics File
+              uses: DamianReeves/write-file-action@master
+              with:
+                  path: ./scraper/comics.json
+                  contents: |
+                      ${{ steps.scrape.outputs.comicsJSON }}
+                  write-mode: overwrite
+
+            - name: Commit & Push
+              uses: Andro999b/push@v1.3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: main
+                  force: true
+                  message: 'Overwritten by Github Actions - ${date} (Comics of ${{ steps.scrape.outputs.comicsDate }})'
+
+            # Use the output from the `hello` step
+            - name: Get the comics date
+              run: echo "The comics' date is ${{ steps.scrape.outputs.comicsDate }}"

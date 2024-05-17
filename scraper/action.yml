@@ -1,0 +1,10 @@
+name: 'Update Comics'
+description: 'Updates daily comic data'
+outputs:
+    comicsDate: # id of output
+        description: 'The date of the comics'
+    comicJSON:
+        description: 'JSON of the comics'
+runs:
+    using: 'node20'
+    main: 'update.js'
